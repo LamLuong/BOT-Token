@@ -73,7 +73,7 @@ contract BOTToken is BurnableToken, MintableToken, PausableToken {
     require(_fee >= defaultFee);
     require(currentCharges <= capCharges);
 
-    bool result = super.transfer(this, _fee);
+    bool result = super.transfer(wallet, _fee);
     if (result) {
       currentCharges = currentCharges.add(_fee);
     }
