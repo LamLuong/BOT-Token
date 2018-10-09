@@ -31,7 +31,7 @@ contract PausableToken is BasicToken, Pausable {
     return super.transferFrom(from, to, value);
   }
 
-/*  function approve(
+  function approve(
     address spender,
     uint256 value
   )
@@ -42,18 +42,18 @@ contract PausableToken is BasicToken, Pausable {
     return super.approve(spender, value);
   }
 
-  function increaseAllowance(
+  function increaseApproval(
     address spender,
     uint addedValue
   )
     public
-    whenNotPauownersed
+    whenNotPaused
     returns (bool success)
   {
-    return super.increaseAllowance(spender, addedValue);
+    return super.increaseApproval(spender, addedValue);
   }
 
-  function decreaseAllowance(
+  function decreaseApproval(
     address spender,
     uint subtractedValue
   )
@@ -61,6 +61,6 @@ contract PausableToken is BasicToken, Pausable {
     whenNotPaused
     returns (bool success)
   {
-    return super.decreaseAllowance(spender, subtractedValue);
-  }*/
+    return super.decreaseApproval(spender, subtractedValue);
+  }
 }

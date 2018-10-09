@@ -15,21 +15,4 @@ contract BurnableToken is BasicToken {
   function burn(uint256 value) public {
     _burn(msg.sender, value);
   }
-
-  /**
-   * @dev Burns a specific amount of tokens from the target address and decrements allowance
-   * @param from address The address which you want to send tokens from
-   * @param value uint256 The amount of token to be burned
-   */
-  function burnFrom(address from, uint256 value) public {
-    _burnFrom(from, value);
-  }
-
-  /**
-   * @dev Overrides ERC20._burn in order for burn and burnFrom to emit
-   * an additional Burn event.
-   */
-  function _burn(address who, uint256 value) internal {
-    super._burn(who, value);
-  }
 }

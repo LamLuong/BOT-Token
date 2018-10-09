@@ -18,16 +18,13 @@ contract BasicToken is IERC20, Claimable {
     using SafeMath for uint256;
 
     BalanceSheet private _balances;
-
+    mapping (address => mapping (address => uint256)) private _allowed;
     uint256 private _totalSupply;
-
-    bool public totalSupplySet;
 
     event BalanceSheetSet(address indexed sheet);
 
     constructor() public {
       _totalSupply = 0;
-      totalSupplySet = false;
     }
     /**
     * @dev claim ownership of the balancesheet contract
@@ -38,16 +35,6 @@ contract BasicToken is IERC20, Claimable {
         _balances.claimOwnership();
         emit BalanceSheetSet(_sheet);
         return true;
-    }
-
-    /**
-    *@dev set the totalSupply of the contract for delegation purposes
-     Can only be set once.
-    */
-    function setTotalSupply(uint _totalSup) external onlyOwner {
-        require(!totalSupplySet, "total supply already set");
-        _totalSupply = _totalSup;
-        totalSupplySet = true;
     }
 
     /**
@@ -87,12 +74,12 @@ contract BasicToken is IERC20, Claimable {
       returns (bool)
     {
       require(value <= _balances.balanceOf(from));
-  //    require(value <= _allowed[from][msg.sender]);
+      require(value <= _allowed[from][msg.sender]);
       require(to != address(0));
 
       _balances.subBalance(from, value);
       _balances.addBalance(to, value);
-    //  _allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
+      _allowed[from][msg.sender] = _allowed[from][msg.sender].sub(value);
       emit Transfer(from, to, value);
       return true;
     }
@@ -114,6 +101,86 @@ contract BasicToken is IERC20, Claimable {
     */
     function balanceOf(address _owner) public view returns (uint256 balance) {
         return _balances.balanceOf(_owner);
+    }
+
+    /**
+     * @dev Approve the passed address to spend the specified amount of tokens on behalf of msg.sender.
+     * Beware that changing an allowance with this method brings the risk that someone may use both the old
+     * and the new allowance by unfortunate transaction ordering. One possible solution to mitigate this
+     * race condition is to first reduce the spender's allowance to 0 and set the desired value afterwards:
+     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729
+     * @param _spender The address which will spend the funds.
+     * @param _value The amount of tokens to be spent.
+     */
+    function approve(address _spender, uint256 _value) public returns (bool) {
+      _allowed[msg.sender][_spender] = _value;
+      emit Approval(msg.sender, _spender, _value);
+      return true;
+    }
+
+    /**
+     * @dev Function to check the amount of tokens that an owner allowed to a spender.
+     * @param _owner address The address which owns the funds.
+     * @param _spender address The address which will spend the funds.
+     * @return A uint256 specifying the amount of tokens still available for the spender.
+     */
+    function allowance(
+      address _owner,
+      address _spender
+     )
+      public
+      view
+      returns (uint256)
+    {
+      return _allowed[_owner][_spender];
+    }
+
+    /**
+     * @dev Increase the amount of tokens that an owner allowed to a spender.
+     * approve should be called when allowed[_spender] == 0. To increment
+     * allowed value is better to use this function to avoid 2 calls (and wait until
+     * the first transaction is mined)
+     * From MonolithDAO Token.sol
+     * @param _spender The address which will spend the funds.
+     * @param _addedValue The amount of tokens to increase the allowance by.
+     */
+    function increaseApproval(
+      address _spender,
+      uint256 _addedValue
+    )
+      public
+      returns (bool)
+    {
+      _allowed[msg.sender][_spender] = (
+        _allowed[msg.sender][_spender].add(_addedValue));
+      emit Approval(msg.sender, _spender, _allowed[msg.sender][_spender]);
+      return true;
+    }
+
+    /**
+     * @dev Decrease the amount of tokens that an owner allowed to a spender.
+     * approve should be called when allowed[_spender] == 0. To decrement
+     * allowed value is better to use this function to avoid 2 calls (and wait until
+     * the first transaction is mined)
+     * From MonolithDAO Token.sol
+     * @param _spender The address which will spend the funds.
+     * @param _subtractedValue The amount of tokens to decrease the allowance by.
+     */
+    function decreaseApproval(
+      address _spender,
+      uint256 _subtractedValue
+    )
+      public
+      returns (bool)
+    {
+      uint256 oldValue = _allowed[msg.sender][_spender];
+      if (_subtractedValue >= oldValue) {
+        _allowed[msg.sender][_spender] = 0;
+      } else {
+        _allowed[msg.sender][_spender] = oldValue.sub(_subtractedValue);
+      }
+      emit Approval(msg.sender, _spender, _allowed[msg.sender][_spender]);
+      return true;
     }
 
     /**
@@ -143,21 +210,5 @@ contract BasicToken is IERC20, Claimable {
       _totalSupply = _totalSupply.sub(amount);
       _balances.subBalance(account, amount);
       emit Transfer(account, address(0), amount);
-    }
-
-    /**
-     * @dev Internal function that burns an amount of the token of a given
-     * account, deducting from the sender's allowance for said account. Uses the
-     * internal burn function.
-     * @param account The account whose tokens will be burnt.
-     * @param amount The amount that will be burnt.
-     */
-    function _burnFrom(address account, uint256 amount) internal {
-      //require(amount <= _allowed[account][msg.sender]);
-
-      // Should https://github.com/OpenZeppelin/zeppelin-solidity/issues/707 be accepted,
-      // this function needs to emit an event with the updated approval.
-      //_allowed[account][msg.sender] = _allowed[account][msg.sender].sub(amount);
-      _burn(account, amount);
     }
 }
