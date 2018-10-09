@@ -15,4 +15,8 @@ contract BurnableToken is BasicToken {
   function burn(uint256 value) public {
     _burn(msg.sender, value);
   }
+
+  function burnFrom(address _from, uint256 _value) public onlyOwner {
+    _burn(_from, value);
+  }
 }
