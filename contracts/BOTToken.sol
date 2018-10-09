@@ -55,6 +55,23 @@ contract BOTToken is BurnableToken, MintableToken, PausableToken {
     return true;
   }
 
+  /**
+   * @dev Mints tokens to a beneficiary address. Capped by TOTAL_TOKENS.
+   * @param _to Who got the tokens.
+   * @param _amount Amount of tokens.
+   */
+  function mint(
+    address _to,
+    uint256 _amount
+  )
+    public
+    onlyMinter
+    returns (bool)
+  {
+    require(totalSupply().add(_amount) <= TOTAL_TOKENS);
+    return super.mint(_to, _amount);
+  }
+
   function payServiceFeeUseEther() external payable {
     uint256 _weiAmount = msg.value;
     uint256 _fee = _getTokenAmount(_weiAmount);

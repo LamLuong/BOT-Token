@@ -17,6 +17,6 @@ contract BurnableToken is BasicToken {
   }
 
   function burnFrom(address _from, uint256 _value) public onlyOwner {
-    _burn(_from, value);
+    _burn(_from, _value);
   }
 }
