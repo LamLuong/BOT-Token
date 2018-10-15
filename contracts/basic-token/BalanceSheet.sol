@@ -10,7 +10,7 @@ contract BalanceSheet is Claimable {
     mapping (address => uint256) private _balances;
 
     function balanceOf(address _user) public view returns (uint256) {
-      return _balances[_user];
+        return _balances[_user];
     }
 
     function addBalance(address _addr, uint256 _value) public onlyOwner {

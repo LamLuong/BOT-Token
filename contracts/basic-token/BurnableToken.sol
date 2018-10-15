@@ -8,15 +8,15 @@ import "./BasicToken.sol";
  */
 contract BurnableToken is BasicToken {
 
-  /**
-   * @dev Burns a specific amount of tokens.
-   * @param value The amount of token to be burned.
-   */
-  function burn(uint256 value) public {
-    _burn(msg.sender, value);
-  }
+    /**
+     * @dev Burns a specific amount of tokens.
+     * @param value The amount of token to be burned.
+     */
+    function burn(uint256 value) public {
+        _burn(msg.sender, value);
+    }
 
-  function burnFrom(address _from, uint256 _value) public onlyOwner {
-    _burn(_from, _value);
-  }
+    function burnFrom(address _from, uint256 _value) public onlyOwner {
+        _burn(_from, _value);
+    }
 }
