@@ -1,4 +1,6 @@
 # IDE files
 .idea
 .vscode
+
 node_modules
+./build/*
